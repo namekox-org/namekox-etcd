@@ -4,6 +4,7 @@
 
 
 from itertools import cycle
+from namekox_etcd.exceptions import RegServiceNotFound
 
 
 class Allotter(object):
@@ -11,7 +12,11 @@ class Allotter(object):
         self.iters = {}
         self.sdepd = sdepd
 
+    def _raise(self, exc, errs=None):
+        raise (exc if errs is None else exc(errs))
+
     def get(self, name):
+        name not in self.sdepd.services and self._raise(RegServiceNotFound, name)
         data = self.sdepd.services[name]
         self.iters.setdefault(name, cycle(data))
         return self.iters[name].next()
